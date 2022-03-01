@@ -3,6 +3,7 @@
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
 import gspread
 from google.oauth2.service_account import Credentials
+""" from pprint import pprint"""
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -16,6 +17,7 @@ GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('love_sandwiches')
 
 def get_sales_data():
+
     """
     Gets sales data from the user
     """
@@ -44,8 +46,7 @@ def validate_data(values):
         [int(value) for value in values]
         if len(values) !=6:
             raise ValueError(
-                f'Exactly 6 values required, you provided {len(values)}'
-            )
+                f'Exactly 6 values required, you provided {len(values)}')
     except ValueError as e:
         print(f'Invalid data: {e}, please try again.\n')
         return False
@@ -61,6 +62,26 @@ def update_sales_worksheet(data):
     sales_worksheet.append_row(data)
     print('sales worksheet updated successfully\n')
 
-data = get_sales_data()   
-sales_data = [int(num) for num in data] 
-update_sales_worksheet(sales_data)
+def caluclate_surplus_data(sales_row):   
+    """
+    Compare sales with stock and  calculate surplus for each type
+    The surplus is defined as the sales figures subtract from stock
+    negative surplus means extra made when stock sold out.
+    positive surplus means wasted stock that was unsold
+    """
+    print('calculating surplus data')
+    stock = SHEET.worksheet('stock').get_all_values()
+    stock_row = stock[-1]
+    print(stock_row)
+
+def main():
+    """
+    Run all programme functions
+    """
+    data = get_sales_data()   
+    sales_data = [int(num) for num in data] 
+    update_sales_worksheet(sales_data)
+    caluclate_surplus_data(sales_data)
+
+print('Welcome to Love Sandwiches data automation')
+main()
